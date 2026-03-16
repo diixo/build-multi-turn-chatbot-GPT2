@@ -12,7 +12,7 @@ class GPT2(nn.Module):
         super(GPT2, self).__init__()
         self.pretrained_model = config.pretrained_model
         self.model = GPT2LMHeadModel.from_pretrained(self.pretrained_model)
-        self.model.resize_token_embeddings(config.vocab_size)
+        self.model.resize_token_embeddings(config.vocab_size, mean_resizing=False)
         self.pad_token_id = tokenizer.pad_token_id
 
 
