@@ -16,7 +16,8 @@ def seed_worker(worker_id):  # noqa
     random.seed(worker_seed)
 
 
-class DLoader(Dataset):
+class DialogLoader(Dataset):
+
     def __init__(self, data, tokenizer, config):
         self.data = data
         self.tokenizer = tokenizer

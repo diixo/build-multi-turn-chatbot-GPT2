@@ -9,7 +9,7 @@ from models import GPT2
 from tools.tokenizers import CustomGPT2Tokenizer
 from utils import LOGGER, RANK, colorstr
 from utils.filesys_utils import read_dataset
-from utils.data_utils import DLoader, seed_worker
+from utils.data_utils import DialogLoader, seed_worker
 
 PIN_MEMORY = str(os.getenv('PIN_MEMORY', True)).lower() == 'true'  # global pin_memory for dataloaders
 
@@ -38,11 +38,11 @@ def build_dataset(config, tokenizer, modes):
                                                 else os.path.join(dataset_dir, 'dailydialog.val') for mode in modes
         }
         dataset_dict = {
-            split: DLoader(read_dataset(p), tokenizer, config) for split, p in dataset_paths.items()
+            split: DialogLoader(read_dataset(p), tokenizer, config) for split, p in dataset_paths.items()
             }
     else:
         LOGGER.warning(colorstr('yellow', 'You have to implement data pre-processing code..'))
-        # dataset_dict = {mode: CustomDLoader(config.CUSTOM.get(f'{mode}_data_path')) for mode in modes}
+        # dataset_dict = {mode: CustomDialogLoader(config.CUSTOM.get(f'{mode}_data_path')) for mode in modes}
         raise NotImplementedError
     return dataset_dict
 
