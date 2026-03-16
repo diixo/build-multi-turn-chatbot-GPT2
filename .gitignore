@@ -1,4 +1,16 @@
+*.pyc
+*__pycache__/
+
+# Environments
+.env
+.env-django
+.env-server
+.venv
+env/
+venv/
+ENV/
+
 .vscode/
 .DS_Store
-__pycache__/
+
 outputs/
