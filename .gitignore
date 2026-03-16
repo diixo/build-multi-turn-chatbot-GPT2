@@ -3,8 +3,6 @@
 
 # Environments
 .env
-.env-django
-.env-server
 .venv
 env/
 venv/

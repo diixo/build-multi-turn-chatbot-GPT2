@@ -1,15 +1,13 @@
-# Multi-turn Chatbot GPT-2
-한국어 버전의 설명은 [여기](./docs/README_ko.md)를 참고하시기 바랍니다.
 
 ## Introduction
-The following code trains a multi-turn chatbot model based on the [DailyDialog](http://yanran.li/dailydialog) dataset and a pre-trained GPT-2 model.
-The GPT-2 used in this project is the ["gpt2" pre-trained model](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
-For a detailed explanation of training a multi-turn chatbot model using GPT-2 and DailyDialog, please refer to [GPT-2와 DailyDialog를 이용한 Multi-turn 챗봇 구현](https://ljm565.github.io/contents/gpt2.html).
+The following code trains a multi-turn chatbot model based on the **DailyDialog** dataset and pre-trained GPT-2 model.
 <br><br><br>
 
 ## Supported Models
 ### Pre-trained GPT-2
 * Pre-trained GPT-2 from Hugging Face.
+
+The GPT-2 used in this project is the ["gpt2" pre-trained model](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
 <br><br><br>
 
 

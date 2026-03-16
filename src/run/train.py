@@ -2,6 +2,7 @@ import os
 import sys
 from sconf import Config
 from argparse import ArgumentParser
+
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 import torch
@@ -19,14 +20,17 @@ def env_setup():
 
 
 def load_config(config_path):
-    config = Config(config_path)
+    if config_path is not None:
+        config = Config(config_path)
+    else:
+        config = Config(default="config/config.yaml")
     return config
 
 
 def main(args):    
     # init config
-    config = load_config(args.config)
-    config.yaml_file = args.config
+    config = load_config(args.config_file)
+    config.yaml_file = args.config_file
     
     # init environment
     env_setup()
@@ -77,18 +81,17 @@ def multi_gpu_train(gpu, ngpus_per_node, config, args):
 
 
 if __name__ == '__main__':
+
     parser = ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, required=False)
-    parser.add_argument('-m', '--mode', type=str, required=True, choices=['train', 'resume'])
+    parser.add_argument('-c', '--config_file', type=str, required=False)
+    parser.add_argument('-m', '--mode', type=str, default='train', required=False, choices=['train', 'resume'])
     parser.add_argument('-r', '--resume_model_dir', type=str, required=False)
     parser.add_argument('-l', '--load_model_type', type=str, default='metric', required=False, choices=['loss', 'last', 'metric'])
     parser.add_argument('-p', '--port', type=str, default='10001', required=False)
     args = parser.parse_args()
 
     if args.mode == 'train':
-        assert args.config, colorstr('red', 'config file is required for training')
         main(args)
     elif args.mode == 'resume':
-        assert args.config, colorstr('red', 'config file is required for training')
         assert args.resume_model_dir, colorstr('red', 'Path for model resuming is required')
         main(args)
