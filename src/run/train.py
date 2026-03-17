@@ -27,7 +27,7 @@ def load_config(config_path):
     return config
 
 
-def main(args):    
+def main(args):
     # init config
     config = load_config(args.config_file)
     config.yaml_file = args.config_file

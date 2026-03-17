@@ -1,5 +1,6 @@
 import os
-import subprocess
+import random
+import numpy as np
 
 import torch
 from torch import distributed as dist
@@ -9,10 +10,17 @@ from models import GPT2
 from tools.tokenizers import CustomGPT2Tokenizer
 from utils import LOGGER, RANK, colorstr
 from utils.filesys_utils import read_dataset
-from utils.data_utils import DialogLoader, seed_worker
+from utils.data_utils import DialogLoader
+
 
 PIN_MEMORY = str(os.getenv('PIN_MEMORY', True)).lower() == 'true'  # global pin_memory for dataloaders
 
+
+def seed_worker(worker_id):  # noqa
+    """Set dataloader worker seed https://pytorch.org/docs/stable/notes/randomness.html#dataloader."""
+    worker_seed = torch.initial_seed() % 2 ** 32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
 
 
 def get_tokenizers(config):
