@@ -55,21 +55,24 @@ def build_dataset(config, tokenizer, modes):
     return dataset_dict
 
 
-def build_dataloader(dataset, batch, workers, shuffle=True, is_ddp=False):
+def build_dataloader(dataset, tokenizer, batch, workers, shuffle=True, is_ddp=False):
     batch = min(batch, len(dataset))
     nd = torch.cuda.device_count()  # number of CUDA devices
     nw = min([os.cpu_count() // max(nd, 1), batch if batch > 1 else 0, workers])  # number of workers
     sampler = None if not is_ddp else distributed.DistributedSampler(dataset, shuffle=shuffle)
     generator = torch.Generator()
     generator.manual_seed(6148914691236517205 + RANK)
-    collate_fn=getattr(dataset, 'collate_fn', None)
     return DataLoader(dataset=dataset,
                               batch_size=batch,
                               shuffle=shuffle and sampler is None,
                               num_workers=nw,
                               sampler=sampler,
                               pin_memory=PIN_MEMORY,
-                              collate_fn=collate_fn,
+                              collate_fn=lambda x: dataset.collate_fn_batch(
+                                    x,
+                                    padding_id=tokenizer.pad_token_id,
+                                    label_padding_id=dataset.IGNORE_INDEX
+                                ),
                               worker_init_fn=seed_worker,
                               generator=generator)
 
@@ -77,6 +80,7 @@ def build_dataloader(dataset, batch, workers, shuffle=True, is_ddp=False):
 def get_data_loader(config, tokenizer, modes, is_ddp=False):
     datasets = build_dataset(config, tokenizer, modes)
     dataloaders = {m: build_dataloader(datasets[m], 
+                                       tokenizer,
                                        config.batch_size, 
                                        config.workers, 
                                        shuffle=(m == 'train'), 

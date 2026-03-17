@@ -11,7 +11,7 @@ name: daily_dialog_chatbot
 
 # model config
 pretrained_model: gpt2
-max_len: 128
+max_len: 1024
 
 # data config
 workers: 0                      # Don't worry to set worker. The number of workers will be set automatically according to the batch size.
@@ -24,10 +24,10 @@ CUSTOM:
     test_data_path: null
 
 # train config
-batch_size: 60
+batch_size: 16
 steps: 30000
 warmup_steps: 200
-lr0: 1e-4
+lr0: 5e-5
 lrf: 0.1                              # last_lr = lr0 * lrf
 scheduler_type: 'cosine'              # ['linear', 'cosine']
 patience: 5                           # Early stopping epochs.
