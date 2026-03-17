@@ -54,13 +54,14 @@ def build_dataloader(dataset, batch, workers, shuffle=True, is_ddp=False):
     sampler = None if not is_ddp else distributed.DistributedSampler(dataset, shuffle=shuffle)
     generator = torch.Generator()
     generator.manual_seed(6148914691236517205 + RANK)
+    collate_fn=getattr(dataset, 'collate_fn', None)
     return DataLoader(dataset=dataset,
                               batch_size=batch,
                               shuffle=shuffle and sampler is None,
                               num_workers=nw,
                               sampler=sampler,
                               pin_memory=PIN_MEMORY,
-                              collate_fn=getattr(dataset, 'collate_fn', None),
+                              collate_fn=collate_fn,
                               worker_init_fn=seed_worker,
                               generator=generator)
 
