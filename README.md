@@ -1,18 +1,14 @@
 
-## Introduction
+# Build multi-turn Chatbot GPT-2
 The following code trains a multi-turn chatbot model based on the **DailyDialog** dataset and pre-trained GPT-2 model.
 <br><br><br>
 
-## Supported Models
-### Pre-trained GPT-2
-* Pre-trained GPT-2 from Hugging Face.
-
-The GPT-2 used in this project is the ["gpt2" pre-trained model](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
+### Supported Models
+* Pre-trained GPT-2 from Hugging Face: ["gpt2"](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
 <br><br><br>
 
 
-## Supported Tokenizer
-### Pre-trained GPT-2 Tokenizer
+### Supported Tokenizer
 * Pre-trained GPT-2 tokenizer from Hugging Face.
 <br><br><br>
 
@@ -22,9 +18,31 @@ The GPT-2 used in this project is the ["gpt2" pre-trained model](https://hugging
 <br><br><br>
 
 
+### Multi-turn GPT-2 Dialogue Results
+"Q" represents user (your inputs) message, and "A" represents the chatbot's response.
+```
+Q: Have you ever been to France
+A: Oh, yes! I went there once last summer.
+Q: How was there?
+A: It was amazing.
+Q: Which spot was your best?
+A: That of the Louvre.
+
+Q: Did you see her yesterday?
+A: Yes, I did. I saw her with a pretty girl.
+Q: Oh where did you see her?                       
+A: She was in a cafe. She told me she was going to a concert.
+Q: I see. I've tried to contact her by phone, but she never received my call.
+A: I'm sure she was in New York. She said she'd be in New York at the latest.
+Q: Really? Thank you for your information. I will contact her today. Thanks.
+```
+
+<br><br><br>
+
+
 ## Supported Devices
 * CPU, GPU, multi-GPU (DDP), MPS (for Mac and torch>=1.12.0)
-<br><br><br>
+<br><br>
 
 ## Quick Start
 ```bash
@@ -32,42 +50,6 @@ python3 src/run/train.py --config config/config.yaml --mode train
 ```
 <br><br>
 
-
-## Project Tree
-This repository is structured as follows.
-```
-├── configs                           <- Folder for storing config files
-│   └── *.yaml
-│
-└── src      
-    ├── models
-    |   └── gpt2.py                   <- GPT-2 model wrapper
-    |
-    ├── run                   
-    |   ├── chatting.py               <- Trained model live demo execution code
-    |   ├── train.py                  <- Training execution file
-    |   └── validation.py             <- Trained model evaulation execution file
-    |
-    ├── tools                   
-    |   ├── tokenizers
-    |   |   └── tokenizer.py          <- Tokenizer class
-    |   ├── early_stopper.py          <- Early stopper class file
-    |   ├── evaluator.py              <- Metric evaluator class file
-    |   ├── model_manager.py          
-    |   └── training_logger.py        <- Training logger class file
-    |
-    ├── trainer                 
-    |   ├── build.py                  <- Codes for initializing dataset, dataloader, etc.
-    |   └── trainer.py                <- Class for training, evaluating, and calculating accuracy
-    |
-    └── uitls                   
-        ├── __init__.py               <- File for initializing the logger, versioning, etc.
-        ├── data_utils.py             <- File defining the dataset's dataloader
-        ├── filesys_utils.py       
-        ├── func_utils.py       
-        └── training_utils.py     
-```
-<br><br>
 
 ## Tutorials & Documentations
 Please follow the steps below to train a multi-turn chatbot model.
@@ -96,24 +78,3 @@ The results of applying the model, which achieved the highest metric on the vali
     * NIST-2: 5.1797
     * NIST-4: 5.5162
     <br><br>
-
-### Multi-turn GPT-2 Dialogue Results
-"Q" represents user (your inputs) message, and "A" represents the chatbot's response.
-```
-Q: Have you ever been to France
-A: Oh, yes! I went there once last summer.
-Q: How was there?
-A: It was amazing.
-Q: Which spot was your best?
-A: That of the Louvre.
-
-Q: Did you see her yesterday?
-A: Yes, I did. I saw her with a pretty girl.
-Q: Oh where did you see her?                       
-A: She was in a cafe. She told me she was going to a concert.
-Q: I see. I've tried to contact her by phone, but she never received my call.
-A: I'm sure she was in New York. She said she'd be in New York at the latest.
-Q: Really? Thank you for your information. I will contact her today. Thanks.
-```
-
-<br><br><br>

@@ -76,8 +76,6 @@ def multi_gpu_train(gpu, ngpus_per_node, config, args):
 
     if args.mode in ['train', 'resume']:
         trainer.do_train()
-            
-
 
 
 if __name__ == '__main__':

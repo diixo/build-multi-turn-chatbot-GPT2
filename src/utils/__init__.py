@@ -246,4 +246,4 @@ def print_mem_consumption(path):
 SCHEDULER_MSG = 'scheduler_type must be belonged to' + f' [{colorstr("linear")}, {colorstr("cosine")}] '
 
 ##################### Assertion List #####################
-SCHEDULER_TYPE = ['linear', 'cosine']
+SCHEDULER_TYPE = ['linear', 'cosine', 'constant']

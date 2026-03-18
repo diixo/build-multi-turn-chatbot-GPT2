@@ -35,7 +35,7 @@ def draw_training_lr_curve(config, func, all_steps_n, warmup_steps_n, is_ddp, wo
     lr0 = config.lr0
     
     os.makedirs(save_dir, exist_ok=True)
-    lrs = [func(i)*lr0 if i > warmup_steps_n
+    lrs = [func(i)*lr0 if i >= warmup_steps_n
            else lr_warmup(i, warmup_steps_n, lr0, func) for i in range(all_steps_n)]
     plt.figure(figsize=(8, 6))
     plt.plot(range(all_steps_n), lrs, marker='o')

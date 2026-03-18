@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import torch
 from torch.utils.data import Dataset
+from utils import colorstr
 
 
 # Speakers dialogues dataset loader
@@ -58,6 +59,7 @@ class DialogLoader(Dataset):
 
             remaining = self.max_len - len(input_ids)
             if remaining <= 0:
+                colorstr("red", f"max_len remaining={remaining}: over_size(<0) id=[{i}]")
                 break
 
             if len(token_ids) > remaining:
@@ -70,7 +72,9 @@ class DialogLoader(Dataset):
             else:
                 labels.extend([self.IGNORE_INDEX] * len(token_ids))
 
-            if len(input_ids) >= self.max_len:
+            input_ids_sz = len(input_ids)
+            if input_ids_sz >= self.max_len:
+                colorstr("red", f"max_len: over_size={input_ids_sz} id=[{i}]")
                 break
 
         input_ids = torch.tensor(input_ids, dtype=torch.long)

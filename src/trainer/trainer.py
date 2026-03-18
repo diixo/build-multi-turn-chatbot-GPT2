@@ -1,6 +1,5 @@
 import gc
 import time
-import math
 import random
 
 import torch
@@ -68,21 +67,33 @@ class Trainer:
             yaml_save(self.save_dir / 'args.yaml', self.config)  # save run args
         
         # init criterion, optimizer, etc.
-        self.steps = self.config.steps
+        train_steps = len(self.dataloaders['train'])
+        self.epochs = self.config.epochs if self.is_training_mode else 1
+        self.steps = self.epochs * train_steps
         self.lr0 = self.config.lr0
         self.lrf = self.config.lrf
-        self.epochs = math.ceil(self.steps / len(self.dataloaders['train'])) if self.is_training_mode else 1
+
         self.criterion = nn.CrossEntropyLoss(ignore_index=self.tokenizer.pad_token_id)
+
         if self.is_training_mode:
             self.optimizer = optim.Adam(self.model.parameters(), lr=self.config.lr0)
 
             # init scheduler
-            self.warmup_steps_n = max(0, self.config.warmup_steps)
-            if self.scheduler_type == 'cosine':
-                self.lf = one_cycle(1, self.lrf, self.steps)
-            elif self.scheduler_type == 'linear':
-                self.lf = lambda x: (1 - (x - self.warmup_steps_n) / (self.steps - self.warmup_steps_n)) * (1.0 - self.lrf) + self.lrf
-            self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=self.lf)
+            if self.scheduler_type != 'constant':
+
+                self.warmup_steps_n = train_steps  # first epoch=warp_up epoch always
+
+                if self.scheduler_type == 'cosine':
+                    self.lf = one_cycle(1, self.lrf, self.steps)
+                elif self.scheduler_type == 'linear':
+                    self.lf = lambda x: (1 - (x - self.warmup_steps_n) / (self.steps - self.warmup_steps_n)) * (1.0 - self.lrf) + self.lrf
+
+                self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=self.lf)
+            else:
+                self.lf = lambda x: 1.0
+                self.warmup_steps_n = 0
+                self.scheduler = None
+
             if self.is_rank_zero:
                 draw_training_lr_curve(self.config, self.lf, self.steps, self.warmup_steps_n, self.is_ddp, self.world_size)
 
@@ -171,11 +182,8 @@ class Trainer:
                         f'{(time.time() - self.train_time_start) / 3600:.3f} hours.')
             
 
-    def epoch_train(
-            self,
-            phase: str,
-            epoch: int
-        ):
+    def epoch_train(self, phase: str, epoch: int):
+
         self.model.train()
         train_loader = self.dataloaders[phase]
         nb = len(train_loader)
@@ -188,10 +196,13 @@ class Trainer:
             logging_header = ['CE Loss', 'lr']
             pbar = init_progress_bar(train_loader, self.is_rank_zero, logging_header, nb)
 
-        for i, (x, y, _, _) in pbar:
+        for i, batch in pbar:
+            x = batch["input_ids"]
+            y = batch["labels"]
+
             # Warmup
             self.train_cur_step += 1
-            if self.train_cur_step <= self.warmup_steps_n:
+            if self.train_cur_step < self.warmup_steps_n:
                 self.optimizer.param_groups[0]['lr'] = lr_warmup(self.train_cur_step, self.warmup_steps_n, self.lr0, self.lf)
             cur_lr = self.optimizer.param_groups[0]['lr']
             
@@ -209,7 +220,8 @@ class Trainer:
             
             loss.backward()
             self.optimizer.step()
-            self.scheduler.step()
+            if self.scheduler is not None:
+                self.scheduler.step()
 
             if self.is_rank_zero:
                 self.training_logger.update(
@@ -228,12 +240,7 @@ class Trainer:
             self.training_logger.update_phase_end(phase, printing=True)
         
         
-    def epoch_validate(
-            self,
-            phase: str,
-            epoch: int,
-            is_training_now=True
-        ):
+    def epoch_validate(self, phase: str, epoch: int, is_training_now=True):
         def _init_log_data_for_vis():
             data4vis = {'trg': [], 'pred': []}
             return data4vis
@@ -257,7 +264,10 @@ class Trainer:
 
                 self.model.eval()
 
-                for i, (x, y, fs, fsl) in pbar:
+                for i, batch in pbar:
+                    x = batch["input_ids"]
+                    y = batch["labels"]
+
                     batch_size = x.size(0)
                     x, y, fs = x.to(self.device), y.to(self.device), fs.to(self.device)
 
