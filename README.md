@@ -1,7 +1,7 @@
 
 # Build multi-turn Chatbot GPT-2
 The following code trains a multi-turn chatbot model based on the **DailyDialog** dataset and pre-trained GPT-2 model.
-<br>
+<br><br>
 
 ## Multi-turn GPT-2 Dialogue Results
 "Q" represents user (your inputs) message, and "A" represents the chatbot's response.
