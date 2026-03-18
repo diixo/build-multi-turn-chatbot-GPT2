@@ -3,20 +3,7 @@
 The following code trains a multi-turn chatbot model based on the **DailyDialog** dataset and pre-trained GPT-2 model.
 <br>
 
-### Supported Models
-* Pre-trained GPT-2 from Hugging Face: ["gpt2"](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
-<br>
-
-### Supported Tokenizer
-* Pre-trained GPT-2 tokenizer from Hugging Face.
-<br>
-
-## Base Dataset
-* [DailyDialog](http://yanran.li/dailydialog) multi-turn dataset.
-* If you want to use your custom data, you have to set train/validation/test data paths in the `config/config.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
-<br>
-
-### Multi-turn GPT-2 Dialogue Results
+## Multi-turn GPT-2 Dialogue Results
 "Q" represents user (your inputs) message, and "A" represents the chatbot's response.
 ```
 Q: Have you ever been to France
@@ -36,18 +23,26 @@ Q: Really? Thank you for your information. I will contact her today. Thanks.
 ```
 <br>
 
-## Supported Devices
-* CPU, GPU, multi-GPU (DDP), MPS (for Mac and torch>=1.12.0)
-<br><br>
-
-## Quick Start
+## Quick Start 🚀
 ```bash
 python3 src/run/train.py --config config/config.yaml --mode train
 ```
-<br><br>
 
+### Supported Devices
+* CPU, GPU, multi-GPU (DDP), MPS (for Mac and torch>=1.12.0)
 
-## Tutorials & Documentations
+### Supported Models
+* Pre-trained GPT-2 from Hugging Face: ["gpt2"](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
+
+### Supported Tokenizer
+* Pre-trained GPT-2 tokenizer from Hugging Face.
+
+### Base Dataset 📚
+* [DailyDialog](http://yanran.li/dailydialog) multi-turn dataset.
+* If you want to use your custom data, you have to set train/validation/test data paths in the `config/config.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
+<br>
+
+## Tutorials & Documentations 🔍
 Please follow the steps below to train a multi-turn chatbot model.
 1. [Getting Started](./docs/1_getting_started.md)
 2. [Data Preparation](./docs/2_data_preparation.md)
@@ -57,7 +52,7 @@ Please follow the steps below to train a multi-turn chatbot model.
    * [Live Demo](./docs/5_live_demo.md)
 
 
-## Training Results
+## Training Results 📣
 ### Results of GPT-2-based Multi-turn Chatbot Model
 * BLEU Score History<br>
 <img src="docs/figs/bleu.jpg" width="80%"><br><br>
