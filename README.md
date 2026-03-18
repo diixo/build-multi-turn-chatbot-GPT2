@@ -1,6 +1,6 @@
 
 # Build multi-turn Chatbot GPT-2
-The following code trains a multi-turn chatbot model based on the **DailyDialog** dataset and pre-trained GPT-2 model.
+The following code trains a multi-turn chatbot model based on the [**DailyDialog**](https://arxiv.org/abs/1710.03957) multi-turn dataset and pre-trained **GPT-2** model.
 <br><br>
 
 ## Multi-turn GPT-2 Dialogue Results
@@ -38,7 +38,7 @@ python3 src/run/train.py --config config/config.yaml --mode train
 * Pre-trained GPT-2 tokenizer from Hugging Face.
 
 ### Base Dataset 📚
-* [DailyDialog](http://yanran.li/dailydialog) multi-turn dataset.
+* [DailyDialog](https://arxiv.org/abs/1710.03957) multi-turn dataset.
 * If you want to use your custom data, you have to set train/validation/test data paths in the `config/config.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
 <br>
 
