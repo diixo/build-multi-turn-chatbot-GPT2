@@ -1,22 +1,20 @@
 
 # Build multi-turn Chatbot GPT-2
 The following code trains a multi-turn chatbot model based on the **DailyDialog** dataset and pre-trained GPT-2 model.
-<br><br><br>
+<br>
 
 ### Supported Models
 * Pre-trained GPT-2 from Hugging Face: ["gpt2"](https://huggingface.co/docs/transformers/model_doc/gpt2) from Hugging Face.
-<br><br><br>
-
+<br>
 
 ### Supported Tokenizer
 * Pre-trained GPT-2 tokenizer from Hugging Face.
-<br><br><br>
+<br>
 
 ## Base Dataset
 * [DailyDialog](http://yanran.li/dailydialog) multi-turn dataset.
 * If you want to use your custom data, you have to set train/validation/test data paths in the `config/config.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
-<br><br><br>
-
+<br>
 
 ### Multi-turn GPT-2 Dialogue Results
 "Q" represents user (your inputs) message, and "A" represents the chatbot's response.
@@ -36,9 +34,7 @@ Q: I see. I've tried to contact her by phone, but she never received my call.
 A: I'm sure she was in New York. She said she'd be in New York at the latest.
 Q: Really? Thank you for your information. I will contact her today. Thanks.
 ```
-
-<br><br><br>
-
+<br>
 
 ## Supported Devices
 * CPU, GPU, multi-GPU (DDP), MPS (for Mac and torch>=1.12.0)
@@ -60,8 +56,6 @@ Please follow the steps below to train a multi-turn chatbot model.
    * [Evaluation](./docs/4_model_evaluation.md)
    * [Live Demo](./docs/5_live_demo.md)
 
-<br><br><br>
-
 
 ## Training Results
 ### Results of GPT-2-based Multi-turn Chatbot Model
@@ -77,4 +71,3 @@ The results of applying the model, which achieved the highest metric on the vali
     * BLEU-4: 0.2268
     * NIST-2: 5.1797
     * NIST-4: 5.5162
-    <br><br>
