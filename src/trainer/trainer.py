@@ -177,7 +177,7 @@ class Trainer:
                 break  # must break all DDP ranks
 
             if self.is_rank_zero:
-                LOGGER.info(f"\nepoch {epoch+1} time: {time.time() - start} s\n\n\n")
+                LOGGER.info(f"\n...epoch {epoch+1} time: {time.time() - start} s\n")
 
         if RANK in (-1, 0) and self.is_rank_zero:
             LOGGER.info(f'\n{epoch + 1} epochs completed in '
@@ -275,40 +275,43 @@ class Trainer:
                     targets4metrics = [self.tokenizer.decode(t.tolist()) for t in x]
 
                     model = self.model.module if self.is_ddp else self.model
-                    predictions, loss = model.batch_inference(
-                        src=x,
-                        start_tokens=(fs, fsl),
-                        max_len=self.validate_len,
-                        tokenizer=self.tokenizer,
-                        loss_func=self.criterion,
-                        target=y
-                    )
-                
-                    metric_results = self.metric_evaluation(loss, predictions, targets4metrics)
 
-                    self.training_logger.update(
-                        phase, 
-                        epoch, 
-                        self.train_cur_step if is_training_now else 0, 
-                        batch_size, 
-                        **{'validation_loss': loss.item()},
-                        **metric_results
-                    )
-
-                    # logging
-                    loss_log = [loss.item()]
-                    msg = tuple([f'{epoch+1}/{self.epochs}'] + loss_log + [metric_results[k] for k in self.metrics])
-                    pbar.set_description(('%-4s' + '%15.4g' * (len(loss_log) + len(self.metrics))) % msg)
-
-                    ids = random.sample(range(batch_size), min(self.config.prediction_print_n, batch_size))
-                    for id in ids:
-                        print_samples(targets4metrics[id], predictions[id])
-
-                    if not is_training_now:
-                        _append_data_for_vis(
-                            **{'trg': targets4metrics,
-                               'pred': predictions}
+                    if len(self.metrics) > 0:
+                        predictions, loss = model.batch_inference(
+                            src=x,
+                            start_tokens=(fs, fsl),
+                            max_len=self.validate_len,
+                            tokenizer=self.tokenizer,
+                            loss_func=self.criterion,
+                            target=y
                         )
+                    
+                        metric_results = self.metric_evaluation(loss, predictions, targets4metrics)
+
+                        self.training_logger.update(
+                            phase,
+                            epoch,
+                            self.train_cur_step if is_training_now else 0,
+                            batch_size,
+                            **{'validation_loss': loss.item()},
+                            **metric_results
+                        )
+                        # logging
+                        loss_log = [loss.item()]
+
+
+                        msg = tuple([f'{epoch+1}/{self.epochs}'] + loss_log + [metric_results[k] for k in self.metrics])
+                        pbar.set_description(('%-4s' + '%15.4g' * (len(loss_log) + len(self.metrics))) % msg)
+
+                        ids = random.sample(range(batch_size), min(self.config.prediction_print_n, batch_size))
+                        for id in ids:
+                            print_samples(targets4metrics[id], predictions[id])
+
+                        if not is_training_now:
+                            _append_data_for_vis(
+                                **{'trg': targets4metrics,
+                                'pred': predictions}
+                            )
 
                 # upadate logs and save model
                 self.training_logger.update_phase_end(phase, printing=True)

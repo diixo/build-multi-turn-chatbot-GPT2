@@ -89,22 +89,21 @@ class TrainingLogger:
 
 
     def save_model(self, save_dir, model):
-        if not hasattr(self, 'validation_epoch_result') or len(self.validation_epoch_result) == 0:
-            LOGGER.warning(f'{colorstr("red", "No log data to save")}')
-            return
-
         epoch, step = self.log_data['epoch'][-1], self.log_data['step'][-1]
         lower_flag, higher_flag = self.model_manager.update_best(self.validation_epoch_result)
 
-        if lower_flag:
-            self.delete_file(save_dir, 'loss')
-            model_path = os.path.join(save_dir, f'model_epoch-{epoch}_step-{step}_loss_best.pt')
-            self.model_manager.save(model, model_path, self.validation_epoch_result)
+        if not hasattr(self, 'validation_epoch_result') or len(self.validation_epoch_result) == 0:
+            LOGGER.warning(f'{colorstr("red", "No log data to save")}')
+        else:
+            if lower_flag:
+                self.delete_file(save_dir, 'loss')
+                model_path = os.path.join(save_dir, f'model_epoch-{epoch}_step-{step}_loss_best.pt')
+                self.model_manager.save(model, model_path, self.validation_epoch_result)
 
-        if higher_flag:
-            self.delete_file(save_dir, 'metric')
-            model_path = os.path.join(save_dir, f'model_epoch-{epoch}_step-{step}_metric_best.pt')
-            self.model_manager.save(model, model_path, self.validation_epoch_result)
+            if higher_flag:
+                self.delete_file(save_dir, 'metric')
+                model_path = os.path.join(save_dir, f'model_epoch-{epoch}_step-{step}_metric_best.pt')
+                self.model_manager.save(model, model_path, self.validation_epoch_result)
         
         self.delete_file(save_dir, 'last')
         model_path = os.path.join(save_dir, f'model_epoch-{epoch}_step-{step}_last_best.pt')

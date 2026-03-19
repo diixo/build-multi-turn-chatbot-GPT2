@@ -11,8 +11,8 @@ name: daily_dialog_chatbot
 
 # model config
 pretrained_model: gpt2
-max_len: 1024
-validate_len: 256
+max_len: 256
+validate_len: 128
 
 # data config
 workers: 0                      # Don't worry to set worker. The number of workers will be set automatically according to the batch size.
@@ -36,4 +36,5 @@ prediction_print_n: 10                # Number of examples to show during infere
 
 # logging config
 common: ['train_loss', 'validation_loss', 'lr']
-metrics: ['ppl', 'bleu2', 'bleu4', 'nist2', 'nist4']   # You can add more metrics after implements metric validation codes
+# metrics: ['ppl', 'bleu2', 'bleu4', 'nist2', 'nist4']   # You can add more metrics after implements metric validation codes
+metrics: []
