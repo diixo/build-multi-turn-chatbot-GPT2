@@ -82,7 +82,9 @@ class DialogLoader(Dataset):
                 colorstr("red", f"max_len remaining={remaining}: over_size(<0) id=[{i}]")
                 break
 
-            if len(token_ids) > remaining:
+            # truncate the current utterance to fit the remaining space
+            was_truncated = len(token_ids) > remaining
+            if was_truncated:
                 token_ids = token_ids[:remaining]
 
             input_ids.extend(token_ids)
@@ -91,6 +93,11 @@ class DialogLoader(Dataset):
                 labels.extend(token_ids)
             else:
                 labels.extend([self.pad_token_id] * len(token_ids))
+
+            # break the loop if already truncated, cause there is no more space
+            if was_truncated:
+                colorstr("red", f"turn_truncated_to_remaining={remaining} id=[{i}]")
+                break
 
             if len(input_ids) >= self.max_len:
                 colorstr("red", f"max_len: over_size={len(input_ids)} id=[{i}]")
