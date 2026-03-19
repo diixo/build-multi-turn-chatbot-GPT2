@@ -52,7 +52,7 @@ class Trainer:
             SCHEDULER_MSG + f' but got {colorstr(self.scheduler_type)}'
 
         # init tokenizer, model, dataset, dataloader, etc.
-        self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'test']
+        self.modes = ['train'] if self.is_training_mode else ['train', 'validation', 'test']
         self.tokenizer = get_tokenizers(self.config)
         self.dataloaders = get_data_loader(self.config, self.tokenizer, self.modes, self.is_ddp)
         self.model = self._init_model(self.config, self.tokenizer, self.mode)
