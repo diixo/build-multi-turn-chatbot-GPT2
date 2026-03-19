@@ -74,8 +74,8 @@ class DialogLoader(Dataset):
 
             # save first context turn for inference/eval
             if seed_sentence_ids is None and i % 2 != predict_parity:
-                seed_sentence_ids = token_ids.copy()
-                seed_sentence_len = len(seed_sentence_ids)
+                seed_sentence_len = min(len(token_ids), self.max_len)
+                seed_sentence_ids = token_ids[:seed_sentence_len].copy()
 
             remaining = self.max_len - len(input_ids)
             if remaining <= 0:
