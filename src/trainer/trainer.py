@@ -71,8 +71,8 @@ class Trainer:
         self.epochs = self.config.epochs if self.is_training_mode else 1
         self.steps = self.epochs * train_steps
         self.lr0 = self.config.lr0
-        self.lrf = self.config.lrf
 
+        # TODO: ignore_index=-100
         self.criterion = nn.CrossEntropyLoss(ignore_index=self.tokenizer.pad_token_id)
 
         if self.is_training_mode:
@@ -80,7 +80,7 @@ class Trainer:
 
             # init scheduler
             if self.scheduler_type != 'constant':
-
+                self.lrf = self.config.lrf
                 self.warmup_steps_n = train_steps  # first epoch=warp_up epoch always
 
                 if self.scheduler_type == 'cosine':
@@ -90,6 +90,7 @@ class Trainer:
 
                 self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=self.lf)
             else:
+                self.lrf = 0
                 self.lf = lambda x: 1.0
                 self.warmup_steps_n = 0
                 self.scheduler = None
@@ -213,11 +214,8 @@ class Trainer:
             output = self.model(x)
             
             # masked label training
-            if self.train_cur_step / self.steps >= self.config.train_user_turn_mask_step:
-                loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), y[:, 1:].reshape(-1))
-            else:
-                loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), x[:, 1:].reshape(-1))
-            
+            loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), y[:, 1:].reshape(-1))
+
             loss.backward()
             self.optimizer.step()
             if self.scheduler is not None:
@@ -267,9 +265,11 @@ class Trainer:
                 for i, batch in pbar:
                     x = batch["input_ids"]
                     y = batch["labels"]
+                    fs = batch["seed_sentence_ids"]
+                    fsl = batch["seed_sentence_len"]
 
                     batch_size = x.size(0)
-                    x, y, fs = x.to(self.device), y.to(self.device), fs.to(self.device)
+                    x, y, fs, fsl = x.to(self.device), y.to(self.device), fs.to(self.device), fsl.to(self.device)
 
                     targets4metrics = [self.tokenizer.decode(t.tolist()) for t in x]
 

@@ -71,7 +71,7 @@ def build_dataloader(dataset, tokenizer, batch, workers, shuffle=True, is_ddp=Fa
                               collate_fn=lambda x: dataset.collate_fn_batch(
                                     x,
                                     padding_id=tokenizer.pad_token_id,
-                                    label_padding_id=dataset.IGNORE_INDEX
+                                    label_padding_id=tokenizer.pad_token_id # dataset.IGNORE_INDEX=100
                                 ),
                               worker_init_fn=seed_worker,
                               generator=generator)
