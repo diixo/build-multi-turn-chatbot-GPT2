@@ -107,10 +107,9 @@ class DialogLoader(Dataset):
 
         input_ids = torch.tensor(input_ids, dtype=torch.long)
         labels = torch.tensor(labels, dtype=torch.long)
-        attention_mask = torch.ones_like(input_ids, dtype=torch.long)
         seed_sentence_ids = torch.tensor(seed_sentence_ids, dtype=torch.long)
 
-        return input_ids, labels, attention_mask, seed_sentence_ids, seed_sentence_len
+        return input_ids, labels, seed_sentence_ids, seed_sentence_len
 
 
     def __getitem__(self, idx: int):
@@ -118,7 +117,7 @@ class DialogLoader(Dataset):
         multi_turn_sentences = self.data[idx]
         predict_parity = idx % 2
 
-        input_ids, labels, attention_mask, seed_sentence_ids, seed_sentence_len = self.make_data(
+        input_ids, labels, seed_sentence_ids, seed_sentence_len = self.make_data(
             multi_turn_sentences=multi_turn_sentences,
             predict_parity=predict_parity
         )
@@ -126,7 +125,6 @@ class DialogLoader(Dataset):
         return {
             "input_ids": input_ids,
             "labels": labels,
-            "attention_mask": attention_mask,
             "seed_sentence_ids": seed_sentence_ids,
             "seed_sentence_len": seed_sentence_len,
         }
@@ -144,14 +142,12 @@ class DialogLoader(Dataset):
 
         batch_input_ids = []
         batch_labels = []
-        batch_attention_mask = []
         batch_seed_sentence_ids = []
         batch_seed_sentence_len = []
 
         for item in batch:
             input_ids = item["input_ids"]
             labels = item["labels"]
-            attention_mask = item["attention_mask"]
             seed_sentence_ids = item["seed_sentence_ids"]
             seed_sentence_len = item["seed_sentence_len"]
 
@@ -167,10 +163,6 @@ class DialogLoader(Dataset):
                     [labels, torch.full((pad_len,), label_padding_id, dtype=torch.long)],
                     dim=0
                 )
-                attention_mask = torch.cat(
-                    [attention_mask, torch.zeros(pad_len, dtype=torch.long)],
-                    dim=0
-                )
 
             if seed_pad_len > 0:
                 seed_sentence_ids = torch.cat(
@@ -180,14 +172,12 @@ class DialogLoader(Dataset):
 
             batch_input_ids.append(input_ids)
             batch_labels.append(labels)
-            batch_attention_mask.append(attention_mask)
             batch_seed_sentence_ids.append(seed_sentence_ids)
             batch_seed_sentence_len.append(seed_sentence_len)
 
         return {
             "input_ids": torch.stack(batch_input_ids, dim=0),
             "labels": torch.stack(batch_labels, dim=0),
-            "attention_mask": torch.stack(batch_attention_mask, dim=0),
             "seed_sentence_ids": torch.stack(batch_seed_sentence_ids, dim=0),
             "seed_sentence_len": torch.tensor(batch_seed_sentence_len, dtype=torch.long),
         }
