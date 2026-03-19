@@ -40,7 +40,7 @@ def get_model(config, tokenizer, device):
 
 def build_dataset(config, tokenizer, modes):
     if config.dailydialog_train:
-        dataset_dir = os.path.join(config.dailydialog_dataset.path, 'dailydialog/processed')
+        dataset_dir = os.path.join(config.dailydialog_dataset.path, 'dailydialog/filtered')
         dataset_paths = {
             mode: os.path.join(dataset_dir, f'dailydialog.{mode}') if mode != 'validation' \
                                                 else os.path.join(dataset_dir, 'dailydialog.val') for mode in modes
