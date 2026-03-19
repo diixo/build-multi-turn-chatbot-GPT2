@@ -46,13 +46,14 @@ class Trainer:
         self.config.is_rank_zero = self.is_rank_zero
         self.resume_path = resume_path
         self.max_len = self.config.max_len
+        self.validate_len = self.config.validate_len
         self.metrics = self.config.metrics
 
         assert self.scheduler_type in SCHEDULER_TYPE, \
             SCHEDULER_MSG + f' but got {colorstr(self.scheduler_type)}'
 
         # init tokenizer, model, dataset, dataloader, etc.
-        self.modes = ['train'] if self.is_training_mode else ['train', 'validation', 'test']
+        self.modes = ['train', 'validation'] if self.is_training_mode else ['train', 'validation', 'test']
         self.tokenizer = get_tokenizers(self.config)
         self.dataloaders = get_data_loader(self.config, self.tokenizer, self.modes, self.is_ddp)
         self.model = self._init_model(self.config, self.tokenizer, self.mode)
@@ -277,7 +278,7 @@ class Trainer:
                     predictions, loss = model.batch_inference(
                         src=x,
                         start_tokens=(fs, fsl),
-                        max_len=self.max_len,
+                        max_len=self.validate_len,
                         tokenizer=self.tokenizer,
                         loss_func=self.criterion,
                         target=y
@@ -297,7 +298,7 @@ class Trainer:
                     # logging
                     loss_log = [loss.item()]
                     msg = tuple([f'{epoch+1}/{self.epochs}'] + loss_log + [metric_results[k] for k in self.metrics])
-                    pbar.set_description(('%15s' + '%15.4g' * (len(loss_log) + len(self.metrics))) % msg)
+                    pbar.set_description(('%-4s' + '%15.4g' * (len(loss_log) + len(self.metrics))) % msg)
 
                     ids = random.sample(range(batch_size), min(self.config.prediction_print_n, batch_size))
                     for id in ids:
