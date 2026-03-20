@@ -12,7 +12,7 @@ def read_dataset(file_path: str):
     return data
 
 
-def read_jsonl_dataset(file_path: str):
+def read_jsonl_dataset(file_path: str, split: str=""):
     # read jsonl to list of tuples
     dialogs = []
 

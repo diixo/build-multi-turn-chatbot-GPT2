@@ -46,7 +46,7 @@ def build_dataset(config, tokenizer, modes):
                                                 else os.path.join(dataset_dir, 'dailydialog-val.jsonl') for mode in modes
         }
         dataset_dict = {
-            split: DialogLoader(read_jsonl_dataset(p), tokenizer, config) for split, p in dataset_paths.items()
+            split: DialogLoader(read_jsonl_dataset(p, split), tokenizer, config) for split, p in dataset_paths.items()
             }
     else:
         LOGGER.warning(colorstr('yellow', 'You have to implement data pre-processing code..'))
