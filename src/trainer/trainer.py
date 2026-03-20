@@ -177,7 +177,7 @@ class Trainer:
                 break  # must break all DDP ranks
 
             if self.is_rank_zero:
-                LOGGER.info(f"\n...epoch {epoch+1} time: {time.time() - start} s\n")
+                LOGGER.info(f"\n...epoch {epoch+1} time: {time.time() - start} s.")
 
         if RANK in (-1, 0) and self.is_rank_zero:
             LOGGER.info(f'\n{epoch + 1} epochs completed in '

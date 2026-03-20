@@ -2,6 +2,7 @@ import os
 import sys
 from sconf import Config
 from argparse import ArgumentParser
+
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 import torch
@@ -18,14 +19,27 @@ def env_setup():
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-def load_config(config_path):
+def load_config_dir(config_dir):
+    if config_dir is not None:
+        config_path = os.path.join(args.resume_model_dir, 'args.yaml')
+    else:
+        def_config = Config("config/config.yaml")
+        config_dir = os.path.join(def_config.project, f"{def_config.name}-{def_config.epochs}-{def_config.batch_size}-{def_config.max_len}")
+        config_path = os.path.join(config_dir, 'args.yaml')
+
+        if not os.path.isfile(config_path):
+            LOGGER.info(f'Extract reference config for: (project:{def_config.project}) (name:{def_config.name})')
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+
     config = Config(config_path)
+
     return config
 
 
-def main(args):    
+def main(args):
+
     # init config
-    config = load_config(os.path.join(args.resume_model_dir, 'args.yaml'))
+    config = load_config_dir(args.resume_model_dir)
     
     # init environment
     env_setup()
@@ -62,13 +76,10 @@ def chatting(args, config):
 
 
 
-
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('-r', '--resume_model_dir', type=str, required=True)
+    parser.add_argument('-r', '--resume_model_dir', type=str, required=False)
     parser.add_argument('-l', '--load_model_type', type=str, default='metric', required=False, choices=['loss', 'last', 'metric'])
     args = parser.parse_args()
 
     main(args)
-
-    
