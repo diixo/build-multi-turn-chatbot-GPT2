@@ -31,7 +31,7 @@ class DialogLoader(Dataset):
         if self.tokenizer.pad_token_id is None:
             raise ValueError("tokenizer.pad_token_id must not be None")
 
-        self.turn_sep_id = tokenizer.eos_token_id
+        self.turn_sep_id = tokenizer.sep_token_id #tokenizer.eos_token_id
         self.ctx_token_id = tokenizer.cls_token_id
         self.pad_token_id = tokenizer.pad_token_id
 
