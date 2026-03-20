@@ -13,7 +13,7 @@ def load_config(config_path):
     if config_path is not None:
         config = Config(config_path)
     else:
-        config = Config(default="config/config.yaml")
+        config = Config(default="config/project.yaml")
     return config
 
 

@@ -25,7 +25,7 @@ Q: Really? Thank you for your information. I will contact her today. Thanks.
 
 ## Quick Start 🚀
 ```bash
-python3 src/run/train.py --config config/config.yaml --mode train
+python3 src/run/train.py --config config/project.yaml --mode train
 ```
 
 ### Supported Devices
@@ -39,7 +39,7 @@ python3 src/run/train.py --config config/config.yaml --mode train
 
 ### Base Dataset 📚
 * [DailyDialog](https://arxiv.org/abs/1710.03957) multi-turn dataset.
-* If you want to use your custom data, you have to set train/validation/test data paths in the `config/config.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
+* If you want to use your custom data, you have to set train/validation/test data paths in the `config/project.yaml`. Also, you have to implement your custom tokenizer, data loading parts in the `src/trainer/build.py`.
 <br>
 
 ## Tutorials & Documentations 🔍

@@ -23,7 +23,7 @@ def load_config_dir(config_dir):
     if config_dir is not None:
         config_path = os.path.join(args.resume_model_dir, 'args.yaml')
     else:
-        def_config = Config("config/config.yaml")
+        def_config = Config("config/project.yaml")
         config_dir = os.path.join(def_config.project, f"{def_config.name}-{def_config.epochs}-{def_config.batch_size}-{def_config.max_len}")
         config_path = os.path.join(config_dir, 'args.yaml')
 
