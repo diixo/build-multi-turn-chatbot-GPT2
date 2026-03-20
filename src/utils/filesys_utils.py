@@ -1,15 +1,30 @@
 import os
 import pickle
 from pathlib import Path
-
+import json
 from utils import LOGGER, colorstr
 
 
 
-def read_dataset(path):
-    with open(path, 'rb') as f:
+def read_dataset(file_path: str):
+    with open(file_path, 'rb') as f:
         data = pickle.load(f)
     return data
+
+
+def read_jsonl_dataset(file_path: str):
+    # read jsonl to list of tuples
+    dialogs = []
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+
+            dialog = json.loads(line)
+            dialogs.append(tuple(dialog))
+    return dialogs
 
 
 def write_dataset(path, obj):

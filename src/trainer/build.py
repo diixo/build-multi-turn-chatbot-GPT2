@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, distributed
 from models import GPT2
 from tools.tokenizers import CustomGPT2Tokenizer
 from utils import LOGGER, RANK, colorstr
-from utils.filesys_utils import read_dataset
+from utils.filesys_utils import read_jsonl_dataset
 from utils.data_utils import DialogLoader
 
 
@@ -42,11 +42,11 @@ def build_dataset(config, tokenizer, modes):
     if config.dailydialog_train:
         dataset_dir = os.path.join(config.dailydialog_dataset.path, 'dailydialog/filtered')
         dataset_paths = {
-            mode: os.path.join(dataset_dir, f'dailydialog.{mode}') if mode != 'validation' \
-                                                else os.path.join(dataset_dir, 'dailydialog.val') for mode in modes
+            mode: os.path.join(dataset_dir, f'dailydialog-{mode}.jsonl') if mode != 'validation' \
+                                                else os.path.join(dataset_dir, 'dailydialog-val.jsonl') for mode in modes
         }
         dataset_dict = {
-            split: DialogLoader(read_dataset(p), tokenizer, config) for split, p in dataset_paths.items()
+            split: DialogLoader(read_jsonl_dataset(p), tokenizer, config) for split, p in dataset_paths.items()
             }
     else:
         LOGGER.warning(colorstr('yellow', 'You have to implement data pre-processing code..'))
