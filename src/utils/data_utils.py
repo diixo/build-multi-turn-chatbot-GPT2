@@ -63,19 +63,19 @@ class DialogLoader(Dataset):
                 return_tensors="pt"
             )["input_ids"].squeeze(0)
 
-            token_ids = sentence_ids.tolist()
+            turn_ids = sentence_ids.tolist()
 
             # Attach from beginning the role-marker only for context utterance
             if i % 2 != predict_parity:
-                token_ids = [self.ctx_token_id] + token_ids
+                turn_ids = [self.ctx_token_id] + turn_ids
 
             # Append turn separator for both roles
-            token_ids = token_ids + [self.turn_sep_id]
+            turn_ids = turn_ids + [self.turn_sep_id]
 
             # save first context turn for inference/eval
             if seed_sentence_ids is None and i % 2 != predict_parity:
-                seed_sentence_len = min(len(token_ids), self.max_len)
-                seed_sentence_ids = token_ids[:seed_sentence_len].copy()
+                seed_sentence_len = min(len(turn_ids), self.max_len)
+                seed_sentence_ids = turn_ids[:seed_sentence_len].copy()
 
             remaining = self.max_len - len(input_ids)
             if remaining <= 0:
@@ -83,16 +83,16 @@ class DialogLoader(Dataset):
                 break
 
             # truncate the current utterance to fit the remaining space
-            was_truncated = len(token_ids) > remaining
+            was_truncated = len(turn_ids) > remaining
             if was_truncated:
-                token_ids = token_ids[:remaining]
+                turn_ids = turn_ids[:remaining]
 
-            input_ids.extend(token_ids)
+            input_ids.extend(turn_ids)
 
             if i % 2 == predict_parity:
-                labels.extend(token_ids)
+                labels.extend(turn_ids)
             else:
-                labels.extend([self.pad_token_id] * len(token_ids))
+                labels.extend([self.pad_token_id] * len(turn_ids))
 
             # break the loop if already truncated, cause there is no more space
             if was_truncated:
