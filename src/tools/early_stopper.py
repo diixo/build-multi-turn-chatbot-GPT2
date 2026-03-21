@@ -3,17 +3,20 @@ from utils import LOGGER
 
 
 class EarlyStopper:
-    def __init__(self, patience=50):
+    def __init__(self, patience=0):
         self.best_epoch = 0
         self.is_init = True
         self.best_high, self.best_low = 0, float('inf')
-        self.patience = patience or float('inf')
+        self.patience = patience
 
 
     def __call__(self, epoch, high=None, low=None):
         if self.is_init:
             self.is_init = False
             self.best_high, self.bestlow = high, low
+            return False
+
+        if self.patience == 0:
             return False
         
         # update best metrics
