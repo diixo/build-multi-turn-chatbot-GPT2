@@ -31,7 +31,7 @@ epochs: 1
 lr0: 1e-4
 lrf: 0.1                              # last_lr = lr0 * lrf
 scheduler_type: 'constant'            # ['linear', 'cosine', 'constant']
-patience: 5                           # Early stopping epochs.
+patience: 0                           # Early stopping epochs. Ignore the early-stopping, if patience==0
 prediction_print_n: 10                # Number of examples to show during inference.
 
 # logging config
