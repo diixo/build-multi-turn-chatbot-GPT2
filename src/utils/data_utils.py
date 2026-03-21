@@ -50,8 +50,10 @@ class DialogLoader(Dataset):
         #for i, sent in enumerate(multi_turn_sentences):
         #   print(f"Tokens[{i}]: {self.tokenizer.tokenize(sent)}")
 
-        input_ids = []
-        labels = []
+        # ctx_token only once: at the very beginning of the whole dialogue
+        input_ids = [self.ctx_token_id]
+        labels = [self.pad_token_id]
+
         seed_sentence_ids = None
         seed_sentence_len = 0
 
@@ -63,30 +65,17 @@ class DialogLoader(Dataset):
                 return_tensors="pt"
             )["input_ids"].squeeze(0)
 
-            turn_ids = sentence_ids.tolist()
-
-            # Attach from beginning the role-marker only for context utterance
-            if i % 2 != predict_parity:
-                turn_ids = [self.ctx_token_id] + turn_ids
-
-            # Append turn separator for both roles
-            turn_ids = turn_ids + [self.turn_sep_id]
+            turn_ids = sentence_ids.tolist() + [self.turn_sep_id]
 
             # save first context turn for inference/eval
             if seed_sentence_ids is None and i % 2 != predict_parity:
-                seed_sentence_len = min(len(turn_ids), self.max_len)
-                seed_sentence_ids = turn_ids[:seed_sentence_len].copy()
+                seed_sentence_ids = [self.ctx_token_id] + turn_ids
 
-            remaining = self.max_len - len(input_ids)
-            if remaining <= 0:
-                colorstr("red", f"max_len remaining={remaining}: over_size(<0) id=[{i}]")
-                break
+                if len(seed_sentence_ids) > self.max_len:
+                    seed_sentence_ids = seed_sentence_ids[:self.max_len]
+                seed_sentence_len = len(seed_sentence_ids)
 
-            # truncate the current utterance to fit the remaining space
-            was_truncated = len(turn_ids) > remaining
-            if was_truncated:
-                turn_ids = turn_ids[:remaining]
-
+            # append first, then trim if needed
             input_ids.extend(turn_ids)
 
             if i % 2 == predict_parity:
@@ -94,13 +83,13 @@ class DialogLoader(Dataset):
             else:
                 labels.extend([self.pad_token_id] * len(turn_ids))
 
-            # break the loop if already truncated, cause there is no more space
-            if was_truncated:
-                colorstr("red", f"turn_truncated_to_remaining={remaining} id=[{i}]")
+            if len(input_ids) > self.max_len:
+                input_ids = input_ids[:self.max_len]
+                labels = labels[:self.max_len]
+                colorstr("red", f"turn_truncated_after_append id=[{i}]")
                 break
 
-            if len(input_ids) >= self.max_len:
-                colorstr("red", f"max_len: over_size={len(input_ids)} id=[{i}]")
+            if len(input_ids) == self.max_len:
                 break
 
         assert seed_sentence_ids is not None, colorstr("red", "seed_sentence_ids is NONE")
