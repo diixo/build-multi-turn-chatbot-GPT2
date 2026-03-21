@@ -17,7 +17,6 @@ from utils.training_utils import *
 
 
 
-
 class Trainer:
     def __init__(
             self, 
@@ -66,7 +65,7 @@ class Trainer:
             self.wdir.mkdir(parents=True, exist_ok=True)  # make dir
             self.config.save_dir = str(self.save_dir)
             yaml_save(self.save_dir / 'args.yaml', self.config)  # save run args
-        
+
         # init criterion, optimizer, etc.
         train_steps = len(self.dataloaders['train'])
         self.epochs = self.config.epochs if self.is_training_mode else 1
@@ -126,7 +125,7 @@ class Trainer:
         # init ddp
         if self.is_ddp:
             model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[self.device])
-        
+
         return model
 
 
@@ -161,7 +160,7 @@ class Trainer:
                     self.epoch_validate(phase, epoch)
                     if self.is_ddp:
                         dist.barrier()
-            
+
             # clears GPU vRAM at end of epoch, can help with out of memory errors
             torch.cuda.empty_cache()
             gc.collect()
@@ -172,7 +171,7 @@ class Trainer:
                 dist.broadcast_object_list(broadcast_list, 0)  # broadcast 'stop' to all ranks
                 if not self.is_rank_zero:
                     self.stop = broadcast_list[0]
-            
+
             if self.stop:
                 break  # must break all DDP ranks
 
@@ -182,7 +181,7 @@ class Trainer:
         if RANK in (-1, 0) and self.is_rank_zero:
             LOGGER.info(f'\n{epoch + 1} epochs completed in '
                         f'{(time.time() - self.train_time_start) / 3600:.3f} hours.')
-            
+
 
     def epoch_train(self, phase: str, epoch: int):
 
@@ -207,13 +206,13 @@ class Trainer:
             if self.train_cur_step < self.warmup_steps_n:
                 self.optimizer.param_groups[0]['lr'] = lr_warmup(self.train_cur_step, self.warmup_steps_n, self.lr0, self.lf)
             cur_lr = self.optimizer.param_groups[0]['lr']
-            
+
             batch_size = x.size(0)
             x, y = x.to(self.device), y.to(self.device)
-            
+
             self.optimizer.zero_grad()
             output = self.model(x)
-            
+
             # masked label training
             loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), y[:, 1:].reshape(-1))
 
@@ -233,12 +232,12 @@ class Trainer:
                 loss_log = [loss.item(), cur_lr]
                 msg = tuple([f'{epoch + 1}/{self.epochs}'] + loss_log)
                 pbar.set_description(('%15s' * 1 + '%15.4g' * len(loss_log)) % msg)
-            
+
         # upadate logs
         if self.is_rank_zero:
             self.training_logger.update_phase_end(phase, printing=True)
-        
-        
+
+
     def epoch_validate(self, phase: str, epoch: int, is_training_now=True):
         def _init_log_data_for_vis():
             data4vis = {'trg': [], 'pred': []}
@@ -285,7 +284,7 @@ class Trainer:
                             loss_func=self.criterion,
                             target=y
                         )
-                    
+
                         metric_results = self.metric_evaluation(loss, predictions, targets4metrics)
 
                         self.training_logger.update(
@@ -339,11 +338,12 @@ class Trainer:
                 metric_results[m] = self.evaluator.cal_nist_score(response_pred, response_gt, n=4)
             else:
                 LOGGER.warning(f'{colorstr("red", "Invalid key")}: {m}')
-        
+
         return metric_results
-    
-    
+
+
     def chatting(self, query: str, is_first_query=False):
+
         def _preprocess(query, is_first_query, query_cache=None):
             if is_first_query:
                 query = [self.tokenizer.cls_token_id] + self.tokenizer.encode(query) + [self.tokenizer.sep_token_id]
@@ -352,7 +352,7 @@ class Trainer:
                 query = self.tokenizer.encode(query) + [self.tokenizer.sep_token_id]
                 query_cache = torch.cat([query_cache, torch.tensor(query, dtype=torch.long).unsqueeze(0).to(self.device)], dim=1)
             return query_cache
-            
+
         self.query_cache = None if is_first_query else self.query_cache
         self.query_cache = _preprocess(query, is_first_query, self.query_cache)
         query_done = False
@@ -372,14 +372,14 @@ class Trainer:
                 answer.pop()
                 query_done = True
                 break
-            
+
             if self.query_cache.size(1) >= self.max_len:
                 query_done = True
                 break
-            
+
             if query_done:
                 self.query_cache = None
                 is_first_query = True
-        
+
         answer = self.tokenizer.decode(answer)
         return self.query_cache, answer, query_done, is_first_query

@@ -95,7 +95,7 @@ class TrainingLogger:
         lower_flag, higher_flag = self.model_manager.update_best(self.validation_epoch_result)
 
         if not hasattr(self, 'validation_epoch_result') or len(self.validation_epoch_result) == 0:
-            LOGGER.warning(f'{colorstr("red", "No log data to save")}')
+            LOGGER.warning(f'{colorstr("blue", "No validation log data to save")}')
         else:
             if lower_flag:
                 self.delete_file(save_dir, 'loss')
