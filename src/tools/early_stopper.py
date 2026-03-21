@@ -18,11 +18,11 @@ class EarlyStopper:
         
         # update best metrics
         is_high_updated, is_low_updated = False, False
-        if self.best_high != None and high > self.best_high:
+        if (self.best_high is not None) and (high is not None) and (high > self.best_high):
             self.best_high = high
             is_high_updated = True
         
-        if self.best_low != None and low < self.best_low:
+        if (self.best_low is not None) and (low is not None) and (low < self.best_low):
             self.best_low = low
             is_low_updated = True
         
