@@ -8,12 +8,17 @@ from utils import LOGGER, colorstr
 
 
 class GPT2(nn.Module):
+
     def __init__(self, config, tokenizer):
         super(GPT2, self).__init__()
         self.pretrained_model = config.pretrained_model
         self.model = GPT2LMHeadModel.from_pretrained(self.pretrained_model, attn_implementation="eager")
         self.model.resize_token_embeddings(config.vocab_size, mean_resizing=False)
         self.pad_token_id = tokenizer.pad_token_id
+        self.eos_token_id = tokenizer.eos_token_id
+
+        if self.pad_token_id is None:
+            self.pad_token_id = self.eos_token_id
 
 
     def make_mask(self, x):
@@ -51,3 +56,56 @@ class GPT2(nn.Module):
         predictions = [tokenizer.decode(pred.detach().cpu().tolist()) for pred in preds]
 
         return predictions, loss
+
+
+    @torch.no_grad()
+    def generate(
+        self,
+        input_ids,
+        max_new_tokens=64,
+        do_sample=False,
+        temperature=1.0,
+        top_k=None,
+        top_p=None,
+        num_beams=1,
+        repetition_penalty=1.0,
+        no_repeat_ngram_size=0,
+        return_only_new_tokens=False,
+    ):
+        """
+        input_ids: LongTensor [batch, seq_len] or [seq_len]
+        """
+
+        self.model.eval()
+
+        if input_ids.dim() == 1:
+            input_ids = input_ids.unsqueeze(0)
+
+        attention_mask = self.make_mask(input_ids)
+
+        generate_kwargs = {
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "max_new_tokens": max_new_tokens,
+            "do_sample": do_sample,
+            "num_beams": num_beams,
+            "repetition_penalty": repetition_penalty,
+            "no_repeat_ngram_size": no_repeat_ngram_size,
+            "pad_token_id": self.pad_token_id,
+            "eos_token_id": self.eos_token_id,
+        }
+
+        if do_sample:
+            if temperature is not None:
+                generate_kwargs["temperature"] = temperature
+            if top_k is not None:
+                generate_kwargs["top_k"] = top_k
+            if top_p is not None:
+                generate_kwargs["top_p"] = top_p
+
+        output_ids = self.model.generate(**generate_kwargs)
+
+        if return_only_new_tokens:
+            output_ids = output_ids[:, input_ids.size(1):]
+
+        return output_ids

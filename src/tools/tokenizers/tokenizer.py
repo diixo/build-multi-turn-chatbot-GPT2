@@ -22,8 +22,8 @@ class CustomGPT2Tokenizer:
     def encode(self, s):
         return self.tokenizer.encode(s, add_special_tokens=False)
 
-    def decode(self, tok):
-        return self.tokenizer.decode(tok)
+    def decode(self, tok, skip_special_tokens=False):
+        return self.tokenizer.decode(tok, skip_special_tokens=skip_special_tokens)
 
     def __call__(self, *args, **kwargs):
         return self.tokenizer(*args, **kwargs)
