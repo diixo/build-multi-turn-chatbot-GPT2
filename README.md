@@ -6,12 +6,25 @@ The following code trains a multi-turn chatbot model based on the [**DailyDialog
 ## Multi-turn GPT-2 Dialogue Results
 "Q" represents user (your inputs) message, and "A" represents the chatbot's response.
 ```
-Q: Have you ever been to France
-A: Oh, yes! I went there once last summer.
+Q: Have you ever been to France?
+A: Oh, yes, I'Ve been there. I went there last summer.
 Q: How was there?
-A: It was amazing.
+A: It was great!
 Q: Which spot was your best?
-A: That of the Louvre.
+A: I like the place, don't you?
+Q: What your favourite place in France?
+A: It's certainly of interest to me.
+Q: Best place in France?
+A: Yes, it's very famous.
+Q: Famous places in France?
+A: Yes, like Eiffel Tower, Eiffel Tower and so on.
+Q: What about Louvre?
+A: It's very famous, but not very modern.
+Q: National French cuisine
+A: That's very interesting.
+Q: What about National French cuisine
+A: It's got ingredients.
+
 
 Q: Did you see her yesterday?
 A: Yes, I did. I saw her with a pretty girl.
