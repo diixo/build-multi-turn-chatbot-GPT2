@@ -19,47 +19,50 @@ def env_setup():
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-def load_config_dir(config_dir):
-    if config_dir is not None:
+def load_model_dir(model_dir):
+    if model_dir is not None:
         config_path = os.path.join(args.resume_model_dir, 'args.yaml')
     else:
         def_config = Config("config/project.yaml")
-        config_dir = os.path.join(def_config.project, f"{def_config.name}-{def_config.epochs}-{def_config.batch_size}-{def_config.max_len}")
-        config_path = os.path.join(config_dir, 'args.yaml')
+        model_dir = os.path.join(def_config.project, f"{def_config.name}-{def_config.epochs}-{def_config.batch_size}-{def_config.max_len}")
+        config_path = os.path.join(model_dir, 'args.yaml')
 
         if not os.path.isfile(config_path):
             LOGGER.info(f'Extract reference config for: (project:{def_config.project}) (name:{def_config.name})')
             raise FileNotFoundError(f"Config file not found: {config_path}")
 
-    config = Config(config_path)
+    return Config(config_path), model_dir
 
-    return config
 
 
 def main(args):
 
     # init config
-    config = load_config_dir(args.resume_model_dir)
+    config, model_dir = load_model_dir(args.resume_model_dir)
     
     # init environment
     env_setup()
 
     # chatting 
-    chatting(args, config)
+    chatting(args, config, model_dir)
 
     
-def chatting(args, config):
+def chatting(args, config, model_dir=None):
     if config.device == 'mps':
         LOGGER.warning(colorstr('yellow', 'cpu is automatically selected because mps leads inaccurate validation.'))
         device = torch.device('cpu')
     else:
         device = torch.device('cpu') if config.device == 'cpu' else torch.device(f'cuda:{config.device[0]}')
 
+    # try to use resume_model_dir from command-line, instead of project-settings
+    if model_dir is None:
+        model_dir = args.resume_model_dir
+
     trainer = Trainer(
         config, 
         'validation', 
         device, 
-        resume_path=choose_proper_resume_model(args.resume_model_dir, args.load_model_type) if args.resume_model_dir else None
+        resume_path=choose_proper_resume_model(model_dir, args.load_model_type) if model_dir else None
     )
     
     LOGGER.info(colorstr('Chatbot starts...\n'))
@@ -79,7 +82,7 @@ def chatting(args, config):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-r', '--resume_model_dir', type=str, required=False)
-    parser.add_argument('-l', '--load_model_type', type=str, default='metric', required=False, choices=['loss', 'last', 'metric'])
+    parser.add_argument('-l', '--load_model_type', type=str, default='last', required=False, choices=['loss', 'last', 'metric'])
     args = parser.parse_args()
 
     main(args)
