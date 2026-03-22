@@ -66,7 +66,7 @@ def chatting(args, config, model_dir=None):
     )
     
     LOGGER.info(colorstr('Chatbot starts...\n'))
-    query_done = False
+
     is_first_query = True
     while 1:
         query = input('Q: ')
