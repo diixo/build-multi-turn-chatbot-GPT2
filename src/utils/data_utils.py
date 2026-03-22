@@ -94,11 +94,8 @@ class DialogLoader(Dataset):
 
         assert seed_sentence_ids is not None, colorstr("red", "seed_sentence_ids is NONE")
 
-        input_ids = torch.tensor(input_ids, dtype=torch.long)
-        labels = torch.tensor(labels, dtype=torch.long)
-        seed_sentence_ids = torch.tensor(seed_sentence_ids, dtype=torch.long)
-
-        return input_ids, labels, seed_sentence_ids, seed_sentence_len
+        return torch.tensor(input_ids, dtype=torch.long), torch.tensor(labels, dtype=torch.long),\
+            torch.tensor(seed_sentence_ids, dtype=torch.long), seed_sentence_len
 
 
     def __getitem__(self, idx: int):
