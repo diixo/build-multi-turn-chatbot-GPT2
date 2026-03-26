@@ -10,7 +10,7 @@ from models import GPT2
 from tools.tokenizers import CustomGPT2Tokenizer
 from utils import LOGGER, RANK, colorstr
 from utils.filesys_utils import read_jsonl_dataset
-from utils.data_utils import DialogLoader
+from utils.dialog_loader import DialogLoader
 
 
 PIN_MEMORY = str(os.getenv('PIN_MEMORY', True)).lower() == 'true'  # global pin_memory for dataloaders
