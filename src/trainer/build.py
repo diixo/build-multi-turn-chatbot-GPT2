@@ -9,8 +9,7 @@ from torch.utils.data import DataLoader, distributed
 from models import GPT2
 from tools.tokenizers import CustomGPT2Tokenizer
 from utils import LOGGER, RANK, colorstr
-from utils.filesys_utils import read_jsonl_dataset
-from utils.dialog_loader import DialogLoader
+from utils.dialog_loader import DialogLoader, read_jsonl_dataset
 
 
 PIN_MEMORY = str(os.getenv('PIN_MEMORY', True)).lower() == 'true'  # global pin_memory for dataloaders

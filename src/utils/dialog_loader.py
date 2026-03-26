@@ -1,9 +1,25 @@
 
 from typing import List, Dict, Any, Optional, Tuple
-
+import json
 import torch
 from torch.utils.data import Dataset
 from utils import colorstr
+
+
+
+def read_jsonl_dataset(file_path: str, split: str=""):
+    # read jsonl to list of tuples
+    dialogs = []
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+
+            dialog = json.loads(line)
+            dialogs.append(tuple(dialog))
+    return dialogs
 
 
 # Speakers dialogues dataset loader

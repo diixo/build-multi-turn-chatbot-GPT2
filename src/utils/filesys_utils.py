@@ -12,21 +12,6 @@ def read_dataset(file_path: str):
     return data
 
 
-def read_jsonl_dataset(file_path: str, split: str=""):
-    # read jsonl to list of tuples
-    dialogs = []
-
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-
-            dialog = json.loads(line)
-            dialogs.append(tuple(dialog))
-    return dialogs
-
-
 def write_dataset(path, obj):
     with open(path, 'wb') as f:
         pickle.dump(obj, f)
