@@ -214,6 +214,7 @@ class Trainer:
             output = self.model(x)
 
             # masked label training
+            # self.criterion = nn.CrossEntropyLoss(ignore_index=self.tokenizer.pad_token_id)
             loss = self.criterion(output[:, :-1, :].reshape(-1, output.size(-1)), y[:, 1:].reshape(-1))
 
             loss.backward()
